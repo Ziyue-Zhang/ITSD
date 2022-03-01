@@ -1,0 +1,2 @@
+[0m[[0m[31merror[0m] [0m[0m/Users/zzy/Desktop/ITSD-DT2022-Template/ITSD-DT2022-Template/app/events/CardClicked.java:47:1: 已在方法 processEvent(akka.actor.ActorRef,structures.GameState,com.fasterxml.jackson.databind.JsonNode)中定义了变量 card[0m
+[0m[[0m[31merror[0m] [0m[0mCard card = BasicObjectBuilders.loadCard(deck1Cards[handPosition-1], handPosition, Card.class);[0m

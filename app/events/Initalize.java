@@ -37,8 +37,8 @@ public class Initalize implements EventProcessor{
 		try {Thread.sleep(500);} catch (InterruptedException e) {e.printStackTrace();}
 
 		//drawTile
-		for(int i = 0; i <= 8; i++){
-			for(int j = 0; j <= 4; j++){
+		for(int i = 0; i < 9; i++){
+			for(int j = 0; j < 5; j++){
 				Tile tile = BasicObjectBuilders.loadTile(i, j);
 				BasicCommands.drawTile(out, tile, 0);
 			}
@@ -46,9 +46,12 @@ public class Initalize implements EventProcessor{
 
 		//drawUnit
 		Tile tile_human = BasicObjectBuilders.loadTile(1,2);
-		Unit unit_human = GameState.return_Unit("humanAvatar");
+		Unit unit_human = gameState.return_Unit("humanAvatar");
 		unit_human.setPositionByTile(tile_human);
-		//GameState.unit.add(unit_human);
+		
+		gameState.human_unit.add(unit_human);
+		gameState.board[1][2] = 1;
+
 		BasicCommands.drawUnit(out, unit_human, tile_human);
 		try {Thread.sleep(500);} catch (InterruptedException e) {e.printStackTrace();}	
 		BasicCommands.setUnitAttack(out, unit_human, 2);
@@ -57,9 +60,12 @@ public class Initalize implements EventProcessor{
 		try {Thread.sleep(500);} catch (InterruptedException e) {e.printStackTrace();}
 
 		Tile tile_ai = BasicObjectBuilders.loadTile(7,2);
-		Unit unit_ai = GameState.return_enemy_unit("aiAvatar");
+		Unit unit_ai = gameState.return_enemy_unit("aiAvatar");
 		unit_ai.setPositionByTile(tile_ai);
-		//GameState.aiUnit.add(unitai);
+		
+		gameState.ai_unit.add(unit_ai);
+		gameState.board[7][2] = 2;
+
 		BasicCommands.drawUnit(out, unit_ai, tile_ai);
 		try {Thread.sleep(500);} catch (InterruptedException e) {e.printStackTrace();}	
 		BasicCommands.setUnitAttack(out, unit_ai, 2);
@@ -67,51 +73,108 @@ public class Initalize implements EventProcessor{
 		BasicCommands.setUnitHealth(out, unit_ai, 20);
 		try {Thread.sleep(500);} catch (InterruptedException e) {e.printStackTrace();}	
 		
+		Player humanPlayer = gameState.getHumanPlayer();
+		Player aiPlayer = gameState.getAiPlayer();
+
 		// setPlayer1Health
 		BasicCommands.addPlayer1Notification(out, "setPlayer1Health", 2);
-		Player humanPlayer = new Player(20, 0);
 		BasicCommands.setPlayer1Health(out, humanPlayer);
 		try {Thread.sleep(2000);} catch (InterruptedException e) {e.printStackTrace();}
 
 		// setPlayer2Health
 		BasicCommands.addPlayer1Notification(out, "setPlayer2Health", 2);
-		Player aiPlayer = new Player(20, 0);
 		BasicCommands.setPlayer2Health(out, aiPlayer);
 		try {Thread.sleep(2000);} catch (InterruptedException e) {e.printStackTrace();}
 
+		int m = gameState.turn_number+1;
+		
 		// Mana
-		for (int m = 0; m<10; m++) {
-			BasicCommands.addPlayer1Notification(out, "setPlayer1Mana ("+m+")", 1);
-			humanPlayer.setMana(m);
-			BasicCommands.setPlayer1Mana(out, humanPlayer);
-			try {Thread.sleep(1000);} catch (InterruptedException e) {e.printStackTrace();}
-		}
+		BasicCommands.addPlayer1Notification(out, "setPlayer1Mana ("+m+")", 1);
+		humanPlayer.setMana(m);
+		BasicCommands.setPlayer1Mana(out, humanPlayer);
+		try {Thread.sleep(1000);} catch (InterruptedException e) {e.printStackTrace();}
 
 		// Mana
-		for (int m = 0; m<10; m++) {
-			BasicCommands.addPlayer1Notification(out, "setPlayer2Mana ("+m+")", 1);
-			aiPlayer.setMana(m);
-			BasicCommands.setPlayer2Mana(out, aiPlayer);
-			try {Thread.sleep(1000);} catch (InterruptedException e) {e.printStackTrace();}
-		}
+		BasicCommands.addPlayer1Notification(out, "setPlayer2Mana ("+m+")", 1);
+		aiPlayer.setMana(m);
+		BasicCommands.setPlayer2Mana(out, aiPlayer);
+		try {Thread.sleep(1000);} catch (InterruptedException e) {e.printStackTrace();}
 
 		//deck1CardsDefinition
 		String[] deck1Cards = {
+			StaticConfFiles.c_azure_herald,
+			StaticConfFiles.c_azurite_lion,
 			StaticConfFiles.c_comodo_charger,
-			StaticConfFiles.c_pureblade_enforcer,
 			StaticConfFiles.c_fire_spitter,
+			StaticConfFiles.c_hailstone_golem,
+			StaticConfFiles.c_ironcliff_guardian,
+			StaticConfFiles.c_pureblade_enforcer,
+			StaticConfFiles.c_silverguard_knight,
+			StaticConfFiles.c_sundrop_elixir,
+			StaticConfFiles.c_truestrike
 		};
 
 		for (int i = 0; i <= 2; i++) {
 			// drawCard
 			Card card = BasicObjectBuilders.loadCard(deck1Cards[i], i, Card.class);
-			BasicCommands.drawCard(out, card, i, 0);
+			gameState.setHumanCard(i+1, card);
+			gameState.setHighlightCard(i+1, 0);
+			BasicCommands.drawCard(out, gameState.getHumanCard(i+1), i+1, 0);
 			try {Thread.sleep(500);} catch (InterruptedException e) {e.printStackTrace();}
 		}
+
+		// moveUnitToTile
+		/*BasicCommands.addPlayer1Notification(out, "Deck 1 Units Test", 2);
+		try {Thread.sleep(2000);} catch (InterruptedException e) {e.printStackTrace();}
+
+		String[] deck1Units = {
+				StaticConfFiles.u_comodo_charger,
+				StaticConfFiles.u_hailstone_golem,
+				StaticConfFiles.u_azure_herald,
+				StaticConfFiles.u_azurite_lion,
+				StaticConfFiles.u_pureblade_enforcer,
+				StaticConfFiles.u_ironcliff_guardian,
+				StaticConfFiles.u_silverguard_knight,
+				StaticConfFiles.u_fire_spitter
+		};
+
+		Tile tile = BasicObjectBuilders.loadTile(3, 2);
+
+		int unitID = 3;
+		for (String deck1CardFile : deck1Units) {
+			BasicCommands.addPlayer1Notification(out, deck1CardFile, 2);
+			Unit unit = BasicObjectBuilders.loadUnit(deck1CardFile, unitID, Unit.class);
+			unit.setPositionByTile(tile); 
+			BasicCommands.drawUnit(out, unit, tile);
+			try {Thread.sleep(2000);} catch (InterruptedException e) {e.printStackTrace();}
+
+			// playUnitAnimation [Move]
+			BasicCommands.addPlayer1Notification(out, "playUnitAnimation [Move]", 2);
+			BasicCommands.playUnitAnimation(out, unit, UnitAnimationType.move);
+			try {Thread.sleep(2000);} catch (InterruptedException e) {e.printStackTrace();}
+
+			// playUnitAnimation [Attack]
+			BasicCommands.addPlayer1Notification(out, "playUnitAnimation [Attack]", 2);
+			BasicCommands.playUnitAnimation(out, unit, UnitAnimationType.attack);
+			try {Thread.sleep(2000);} catch (InterruptedException e) {e.printStackTrace();}
+
+			// playUnitAnimation [Death]
+			BasicCommands.addPlayer1Notification(out, "playUnitAnimation [Death]", 3);
+			BasicCommands.playUnitAnimation(out, unit, UnitAnimationType.death);
+			try {Thread.sleep(3000);} catch (InterruptedException e) {e.printStackTrace();}
+
+			// deleteUnit
+			BasicCommands.addPlayer1Notification(out, "deleteUnit", 2);
+			BasicCommands.deleteUnit(out, unit);
+			try {Thread.sleep(2000);} catch (InterruptedException e) {e.printStackTrace();}
+
+			unitID++;
+		}
+
 		
 		// User 1 makes a change
 		//CommandDemo.executeDemo(out); // this executes the command demo, comment out this when implementing your solution
-		//CheckMoveLogic.executeDemo(out);
+		//CheckMoveLogic.executeDemo(out);*/
 	}
 
 }

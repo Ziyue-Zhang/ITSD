@@ -1,5 +1,10 @@
 package structures;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import structures.basic.Card;
+import structures.basic.Player;
 import structures.basic.Unit;
 import utils.BasicObjectBuilders;
 import utils.StaticConfFiles;
@@ -18,9 +23,34 @@ public class GameState {
 	
 	public boolean something = false;
 
-	public int[][] allocated = new int[9][5];
+	public Player humanPlayer;
+	public Player aiPlayer;
+
+	public int[][] board = new int[9][5];
+	public int turn_number;
+
+	public List<Unit> human_unit = new ArrayList<Unit>();
+	public List<Unit> ai_unit = new ArrayList<Unit>();
+
+	public Card[] human_card = new Card[7];
+	public int[] highlight_card = new int[7];
+
+	public Player getHumanPlayer() {return humanPlayer;}
+	public Player getAiPlayer() {return aiPlayer;}
+
+	public void setHumanCard(int loc, Card card) {human_card[loc]=card;}
+	public void setHighlightCard(int loc, int mode) {highlight_card[loc]=mode;}
+
+	public Card getHumanCard(int loc) {return human_card[loc];}
+	public int getHighlightCard() {
+		for(int i = 1; i < 7; i++){
+			if(highlight_card[i] == 1)
+				return i;
+		}
+		return 0;
+	}
 	
-	public static Unit return_Unit(String name){
+	public Unit return_Unit(String name){
 		switch (name) {
 			case "humanAvatar" : 
 				return BasicObjectBuilders.loadUnit(StaticConfFiles.humanAvatar, 0, Unit.class);
@@ -46,7 +76,7 @@ public class GameState {
 	}
 
 
-	public static Unit return_enemy_unit(String name){
+	public Unit return_enemy_unit(String name){
 		switch (name) {
 			case "aiAvatar" : 
 				return BasicObjectBuilders.loadUnit(StaticConfFiles.aiAvatar, 9, Unit.class);
@@ -69,6 +99,23 @@ public class GameState {
 			default :
 		}
 		return null;
+	}
+
+	public GameState(){
+		humanPlayer = new Player(20, 2);
+		aiPlayer = new Player(20, 2);
+		turn_number = 1;
+
+		for(int i = 0; i < 9; i++){
+			for(int j = 0; j < 5; j++){
+				board[i][j]=0;
+			}
+		}
+
+		for(int i = 0; i < 7; i++){
+			human_card[i] = null;
+			highlight_card[i] = 0;
+		}
 	}
 
 }
