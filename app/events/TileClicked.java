@@ -50,14 +50,29 @@ public class TileClicked implements EventProcessor{
 		gameState.select_card = false;
 	}
 
+	public void highlight_unit_off(ActorRef out, GameState gameState){
+		for(int i = 0; i < 9; i++){
+			for(int j = 0; j < 5; j++){
+				if(gameState.highlight_board[i][j]==1){
+					gameState.highlight_board[i][j] = 0;
+					Tile tile = BasicObjectBuilders.loadTile(i, j);
+					BasicCommands.drawTile(out, tile, 0);
+				}
+			}
+		}
+		gameState.select = false;
+	}
+
 	@Override
 	public void processEvent(ActorRef out, GameState gameState, JsonNode message) {
 
 		int tilex = message.get("tilex").asInt();
 		int tiley = message.get("tiley").asInt();
 		
-		if (gameState.select_card== true) {
+		if (gameState.select_card == true) {
 			// do some logic
+			highlight_unit_off(out, gameState);
+
 			for(Unit unit:gameState.human_unit){
 				Position position = unit.getPosition();
 				int x = position.getTilex();
@@ -80,7 +95,7 @@ public class TileClicked implements EventProcessor{
 					unit1.setPositionByTile(tile1);
 		
 					gameState.human_unit.add(unit1);
-					gameState.board[x][y] = 1;
+					gameState.board[tilex][tiley] = 1;
 
 					BasicCommands.drawUnit(out, unit1, tile1);
 					try {Thread.sleep(50);} catch (InterruptedException e) {e.printStackTrace();}	
@@ -98,8 +113,55 @@ public class TileClicked implements EventProcessor{
 					return;
 				}
 			}
+			highlight_card_off(out, gameState);
 		}
-		
+		else if(gameState.select == true) {
+			if(gameState.highlight_board[tilex][tiley] == 1){
+				Unit select_unit = gameState.select_unit;
+				Position position = select_unit.getPosition();
+				int x = position.getTilex();
+				int y = position.getTiley();
+				Tile tile = BasicObjectBuilders.loadTile(tilex, tiley);
+				select_unit.setPositionByTile(tile);
+				BasicCommands.addPlayer1Notification(out, "move", 2);
+                BasicCommands.moveUnitToTile(out, select_unit, tile);
+				gameState.board[x][y] = 0;
+				gameState.board[tilex][tiley] = 1;
+			}
+
+			highlight_unit_off(out, gameState);
+		}
+		else{
+			highlight_card_off(out, gameState);
+			for(Unit unit:gameState.human_unit){
+				Position position = unit.getPosition();
+				int x = position.getTilex();
+				int y = position.getTiley();
+				if(x!=tilex || y!=tiley){
+					continue;
+				}
+				for(int i = 0; i < 12; i++){
+					int xx=x+dx[i];
+					int yy=y+dy[i];
+					if(xx<0||yy<0||xx>8||yy>4)
+						continue;
+					if(gameState.board[xx][yy]==0){
+						gameState.highlight_board[xx][yy]=1;
+					}
+				}
+				gameState.select = true;
+				gameState.select_unit = unit;
+				for(int i = 0; i < 9; i++){
+					for(int j = 0; j < 5; j++){
+						if(gameState.highlight_board[i][j]==1){
+							Tile tile = BasicObjectBuilders.loadTile(i, j);
+							BasicCommands.drawTile(out, tile, 1);
+						}
+					}
+				}
+				return;
+			}
+		}
 	}
 
 }

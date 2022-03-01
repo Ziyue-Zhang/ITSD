@@ -46,11 +46,26 @@ public class CardClicked implements EventProcessor{
 		gameState.select_card = false;
 	}
 
+	public void highlight_unit_off(ActorRef out, GameState gameState){
+		for(int i = 0; i < 9; i++){
+			for(int j = 0; j < 5; j++){
+				if(gameState.highlight_board[i][j]==1){
+					gameState.highlight_board[i][j] = 0;
+					Tile tile = BasicObjectBuilders.loadTile(i, j);
+					BasicCommands.drawTile(out, tile, 0);
+				}
+			}
+		}
+		gameState.select = false;
+	}
+
 
 	@Override
 	public void processEvent(ActorRef out, GameState gameState, JsonNode message) {
 		
 		int handPosition = message.get("position").asInt();
+
+		highlight_unit_off(out, gameState);
 
 		if(gameState.select_card){
 			highlight_card_off(out, gameState);
@@ -76,7 +91,7 @@ public class CardClicked implements EventProcessor{
 			for(int i = 0; i < 8; i++){
 				int xx=x+dx[i];
 				int yy=y+dy[i];
-				if(xx<0||yy<0||xx>8||yy>5)
+				if(xx<0||yy<0||xx>8||yy>4)
 					continue;
 				if(gameState.board[xx][yy]==0){
 					gameState.highlight_board[xx][yy]=1;

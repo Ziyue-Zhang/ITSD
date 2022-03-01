@@ -23,6 +23,9 @@ public class GameState {
 	
 	public boolean something = false;
 	public boolean select_card = false;
+	public boolean select = false;
+
+	public Unit select_unit = null;
 
 	public Player humanPlayer;
 	public Player aiPlayer;
