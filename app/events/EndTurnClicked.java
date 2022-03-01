@@ -5,7 +5,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import akka.actor.ActorRef;
 import commands.BasicCommands;
 import structures.GameState;
+import structures.basic.Card;
 import structures.basic.Player;
+import utils.BasicObjectBuilders;
 
 /**
  * Indicates that the user has clicked an object on the game canvas, in this case
@@ -37,7 +39,17 @@ public class EndTurnClicked implements EventProcessor{
 		aiPlayer.setMana(m);
 		BasicCommands.setPlayer2Mana(out, aiPlayer);
 		try {Thread.sleep(500);} catch (InterruptedException e) {e.printStackTrace();}
-
+		
+		int index = gameState.deck1_index;
+		Card card = BasicObjectBuilders.loadCard(gameState.deck1Cards[index], index, Card.class);
+		int free_index = gameState.getFreeCard();
+		if(free_index != 0){
+			gameState.setHumanCard(free_index, card);
+			gameState.setHighlightCard(free_index, 0);
+			BasicCommands.drawCard(out, gameState.getHumanCard(free_index), free_index, 0);
+			try {Thread.sleep(500);} catch (InterruptedException e) {e.printStackTrace();}
+			gameState.deck1_index += 1;
+		}
 		
 	}
 

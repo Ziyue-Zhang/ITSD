@@ -37,6 +37,8 @@ public class GameState {
 	public Card[] human_card = new Card[7];
 	public int[] highlight_card = new int[7];
 
+	public int deck1_index = 0;
+
 	public String[] deck1Cards = {
 		StaticConfFiles.c_azure_herald,
 		StaticConfFiles.c_azurite_lion,
@@ -70,6 +72,13 @@ public class GameState {
 	public void setHighlightCard(int loc, int mode) {highlight_card[loc]=mode;}
 
 	public Card getHumanCard(int loc) {return human_card[loc];}
+	public int getFreeCard(){
+		for(int i = 1; i < 7; i++){
+			if(human_card[i] == null)
+				return i;
+		}
+		return 0;
+	}
 	public int getHighlightCard() {
 		for(int i = 1; i < 7; i++){
 			if(highlight_card[i] == 1)
