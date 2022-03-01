@@ -8,6 +8,7 @@ import structures.GameState;
 import structures.basic.Unit;
 import structures.basic.Card;
 import structures.basic.Player;
+import structures.basic.Unit;
 import utils.BasicObjectBuilders;
 
 /**
@@ -50,6 +51,12 @@ public class EndTurnClicked implements EventProcessor{
 			BasicCommands.drawCard(out, gameState.getHumanCard(free_index), free_index, 0);
 			try {Thread.sleep(500);} catch (InterruptedException e) {e.printStackTrace();}
 			gameState.deck1_index += 1;
+			gameState.deck1_index = gameState.deck1_index % gameState.deck1Cards.length;
+		}
+
+		for(Unit unit:gameState.human_unit){
+			unit.move = true;
+			unit.attack = true;
 		}
 
 		for(Unit ai_unit : gameState.ai_unit) {

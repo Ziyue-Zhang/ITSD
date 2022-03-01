@@ -1,1 +1,5 @@
+<<<<<<< HEAD
 [0m[[0m[0mdebug[0m] [0m[0mUsing parent loader for play common classloader: jdk.internal.loader.ClassLoaders$PlatformClassLoader@3b0c9195[0m
+=======
+[0m[[0m[0mdebug[0m] [0m[0mUsing parent loader for play common classloader: jdk.internal.loader.ClassLoaders$PlatformClassLoader@293a5f75[0m
+>>>>>>> d273d308009f83fed95cc1343a2c51751d3be005

@@ -108,6 +108,7 @@ public class TileClicked implements EventProcessor{
 				int y = position.getTiley();
 				Tile tile = BasicObjectBuilders.loadTile(tilex, tiley);
 				select_unit.setPositionByTile(tile);
+				select_unit.move = false;
 				BasicCommands.addPlayer1Notification(out, "move", 2);
                 BasicCommands.moveUnitToTile(out, select_unit, tile);
 				gameState.board[x][y] = 0;
@@ -198,6 +199,11 @@ public class TileClicked implements EventProcessor{
 					gameState.humanWin = true;
 				}
 			}
+			else if(gameState.highlight_board[tilex][tiley] == 2){
+				Unit select_unit = gameState.select_unit;
+				
+				select_unit.attack = false;
+			}
 
 			BasicUtils.highlight_unit_off(out, gameState);
 		}
@@ -219,6 +225,7 @@ public class TileClicked implements EventProcessor{
 					if(gameState.board[xx][yy]==0){
 						gameState.highlight_board[xx][yy]=1;
 					}
+					return;
 				}
 				// get attackable position and highlight as 2
 				for(int i = 0; i < 8; i++){
@@ -230,6 +237,7 @@ public class TileClicked implements EventProcessor{
 						if(ai_unit.getPosition().getTilex() == xx && ai_unit.getPosition().getTiley() == yy)
 							gameState.highlight_board[xx][yy]=2;
 					}
+					return;
 				}
 				gameState.select = true;
 				gameState.select_unit = unit;
