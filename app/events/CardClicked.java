@@ -49,7 +49,7 @@ public class CardClicked implements EventProcessor{
 	public void highlight_unit_off(ActorRef out, GameState gameState){
 		for(int i = 0; i < 9; i++){
 			for(int j = 0; j < 5; j++){
-				if(gameState.highlight_board[i][j]==1){
+				if(gameState.highlight_board[i][j]>0){
 					gameState.highlight_board[i][j] = 0;
 					Tile tile = BasicObjectBuilders.loadTile(i, j);
 					BasicCommands.drawTile(out, tile, 0);

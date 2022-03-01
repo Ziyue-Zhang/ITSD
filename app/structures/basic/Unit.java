@@ -25,6 +25,8 @@ public class Unit {
 	Position position;
 	UnitAnimationSet animations;
 	ImageCorrection correction;
+	public boolean move = true;
+	public boolean attack = true;
 	
 	public Unit() {}
 	

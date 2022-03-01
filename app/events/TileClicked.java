@@ -53,7 +53,7 @@ public class TileClicked implements EventProcessor{
 	public void highlight_unit_off(ActorRef out, GameState gameState){
 		for(int i = 0; i < 9; i++){
 			for(int j = 0; j < 5; j++){
-				if(gameState.highlight_board[i][j]==1){
+				if(gameState.highlight_board[i][j]>0){
 					gameState.highlight_board[i][j] = 0;
 					Tile tile = BasicObjectBuilders.loadTile(i, j);
 					BasicCommands.drawTile(out, tile, 0);
@@ -123,10 +123,16 @@ public class TileClicked implements EventProcessor{
 				int y = position.getTiley();
 				Tile tile = BasicObjectBuilders.loadTile(tilex, tiley);
 				select_unit.setPositionByTile(tile);
+				select_unit.move = false;
 				BasicCommands.addPlayer1Notification(out, "move", 2);
                 BasicCommands.moveUnitToTile(out, select_unit, tile);
 				gameState.board[x][y] = 0;
 				gameState.board[tilex][tiley] = 1;
+			}
+			else if(gameState.highlight_board[tilex][tiley] == 2){
+				Unit select_unit = gameState.select_unit;
+				
+				select_unit.attack = false;
 			}
 
 			highlight_unit_off(out, gameState);
@@ -140,26 +146,52 @@ public class TileClicked implements EventProcessor{
 				if(x!=tilex || y!=tiley){
 					continue;
 				}
-				for(int i = 0; i < 12; i++){
-					int xx=x+dx[i];
-					int yy=y+dy[i];
-					if(xx<0||yy<0||xx>8||yy>4)
-						continue;
-					if(gameState.board[xx][yy]==0){
-						gameState.highlight_board[xx][yy]=1;
-					}
+				if(unit.move == false && unit.attack == false){
+					return;
 				}
-				gameState.select = true;
-				gameState.select_unit = unit;
-				for(int i = 0; i < 9; i++){
-					for(int j = 0; j < 5; j++){
-						if(gameState.highlight_board[i][j]==1){
-							Tile tile = BasicObjectBuilders.loadTile(i, j);
-							BasicCommands.drawTile(out, tile, 1);
+				else if(unit.move == false && unit.attack == true){
+					for(int i = 0; i < 8; i++){
+						int xx=x+dx[i];
+						int yy=y+dy[i];
+						if(xx<0||yy<0||xx>8||yy>4)
+							continue;
+						gameState.highlight_board[xx][yy]=2;
+					}
+					gameState.select = true;
+					gameState.select_unit = unit;
+					for(int i = 0; i < 9; i++){
+						for(int j = 0; j < 5; j++){
+							if(gameState.highlight_board[i][j]==2){
+								Tile tile = BasicObjectBuilders.loadTile(i, j);
+								BasicCommands.drawTile(out, tile, 2);
+							}
 						}
 					}
+					return;
 				}
-				return;
+				else{
+					for(int i = 0; i < 12; i++){
+						int xx=x+dx[i];
+						int yy=y+dy[i];
+						if(xx<0||yy<0||xx>8||yy>4)
+							continue;
+						if(gameState.board[xx][yy]==0){
+							gameState.highlight_board[xx][yy]=1;
+						}
+					}
+					gameState.select = true;
+					gameState.select_unit = unit;
+					for(int i = 0; i < 9; i++){
+						for(int j = 0; j < 5; j++){
+							if(gameState.highlight_board[i][j]==1){
+								Tile tile = BasicObjectBuilders.loadTile(i, j);
+								BasicCommands.drawTile(out, tile, 1);
+							}
+						}
+					}
+					return;
+				}
+				
 			}
 		}
 	}
