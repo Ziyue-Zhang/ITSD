@@ -42,6 +42,9 @@ public class GameState {
 
 	public int deck1_index = 0;
 
+	public int human_boss_id = 0;
+	public int ai_boss_id = 0;
+
 	public boolean gameEnd = false;
 	public boolean aiWin = false;
 	public boolean humanWin = false;

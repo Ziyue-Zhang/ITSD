@@ -54,11 +54,6 @@ public class EndTurnClicked implements EventProcessor{
 			gameState.deck1_index = gameState.deck1_index % gameState.deck1Cards.length;
 		}
 
-		for(Unit unit:gameState.human_unit){
-			unit.move = true;
-			unit.attack = true;
-		}
-
 		for(Unit ai_unit : gameState.ai_unit) {
 			ai_unit.round_attackable = true;
 			ai_unit.round_moveable = true;

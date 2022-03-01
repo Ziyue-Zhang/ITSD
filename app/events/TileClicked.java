@@ -108,7 +108,6 @@ public class TileClicked implements EventProcessor{
 				int y = position.getTiley();
 				Tile tile = BasicObjectBuilders.loadTile(tilex, tiley);
 				select_unit.setPositionByTile(tile);
-				select_unit.move = false;
 				BasicCommands.addPlayer1Notification(out, "move", 2);
                 BasicCommands.moveUnitToTile(out, select_unit, tile);
 				gameState.board[x][y] = 0;
@@ -122,6 +121,7 @@ public class TileClicked implements EventProcessor{
 				}
 
 				gameState.select_unit.round_attackable = false;
+				gameState.select_unit.round_moveable = false;
 
 				// 1. get the attacked enemy
 				Unit enemy = null;
@@ -145,6 +145,10 @@ public class TileClicked implements EventProcessor{
 					// 3.2 decrease the health of enemy
 					enemy.setHealth(enemy.getHealth() - me.getAttack());
 					BasicCommands.setUnitHealth(out, enemy, enemy.getHealth());
+					if(enemy.getId() == gameState.ai_boss_id) {
+						gameState.getAiPlayer().setHealth(enemy.getHealth());
+						BasicCommands.setPlayer2Health(out, gameState.getAiPlayer());
+					}
 					try {Thread.sleep(20);} catch (InterruptedException e) {e.printStackTrace();}
 
 					// 3.3 the enemy fights back
@@ -161,6 +165,10 @@ public class TileClicked implements EventProcessor{
 						// 4. decrease the health of me
 						me.setHealth(me.getHealth() - enemy.getAttack());
 						BasicCommands.setUnitHealth(out, me, me.getHealth());
+						if(me.getId() == gameState.human_boss_id) {
+							gameState.getHumanPlayer().setHealth(me.getHealth());
+							BasicCommands.setPlayer1Health(out, gameState.getHumanPlayer());
+						}
 						try {Thread.sleep(20);} catch (InterruptedException e) {e.printStackTrace();}
 					}else {
 						// me die
@@ -173,8 +181,11 @@ public class TileClicked implements EventProcessor{
 						gameState.human_unit.remove(me);
 
 						// 4.2 if me is boss , ai wins
-						gameState.gameEnd = true;
-						gameState.aiWin = true;
+						if(me.getId() == gameState.human_boss_id) {
+							BasicCommands.addPlayer1Notification(out, "AI wins this game!", 2);
+							gameState.gameEnd = true;
+							gameState.aiWin = true;
+						}
 					}
 
 
@@ -195,14 +206,14 @@ public class TileClicked implements EventProcessor{
 					gameState.ai_unit.remove(enemy);
 
 					// 3.3 if the enemy is boos , human wins
-					gameState.gameEnd = true;
-					gameState.humanWin = true;
+					if(enemy.getId() == gameState.ai_boss_id) {
+						gameState.getAiPlayer().setHealth(0);
+						BasicCommands.setPlayer2Health(out, gameState.getAiPlayer());
+						BasicCommands.addPlayer1Notification(out, "You win this game!", 2);
+						gameState.gameEnd = true;
+						gameState.humanWin = true;
+					}
 				}
-			}
-			else if(gameState.highlight_board[tilex][tiley] == 2){
-				Unit select_unit = gameState.select_unit;
-				
-				select_unit.attack = false;
 			}
 
 			BasicUtils.highlight_unit_off(out, gameState);
@@ -225,7 +236,6 @@ public class TileClicked implements EventProcessor{
 					if(gameState.board[xx][yy]==0){
 						gameState.highlight_board[xx][yy]=1;
 					}
-					return;
 				}
 				// get attackable position and highlight as 2
 				for(int i = 0; i < 8; i++){
@@ -237,7 +247,6 @@ public class TileClicked implements EventProcessor{
 						if(ai_unit.getPosition().getTilex() == xx && ai_unit.getPosition().getTiley() == yy)
 							gameState.highlight_board[xx][yy]=2;
 					}
-					return;
 				}
 				gameState.select = true;
 				gameState.select_unit = unit;
