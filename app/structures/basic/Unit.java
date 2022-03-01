@@ -25,6 +25,11 @@ public class Unit {
 	Position position;
 	UnitAnimationSet animations;
 	ImageCorrection correction;
+	int attack;
+	int health;
+
+	public boolean round_moveable = true;
+	public boolean round_attackable = true;
 	
 	public Unit() {}
 	
@@ -96,7 +101,15 @@ public class Unit {
 	public void setAnimations(UnitAnimationSet animations) {
 		this.animations = animations;
 	}
-	
+
+	public int getAttack(){ return  attack ;}
+
+	public int getHealth(){ return health ;}
+
+	public void setAttack(int num){ attack = num ;}
+
+	public void setHealth(int num){ health = num; }
+
 	/**
 	 * This command sets the position of the Unit to a specified
 	 * tile.

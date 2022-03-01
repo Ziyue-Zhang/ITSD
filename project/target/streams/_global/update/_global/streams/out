@@ -1,4 +1,4 @@
-[0m[[0m[0mdebug[0m] [0m[0m"not up to date. inChanged = true, force = false[0m
-[0m[[0m[0mdebug[0m] [0m[0mUpdating ProjectRef(uri("file:/Users/zzy/Desktop/ITSD-DT2022-Template/ITSD-DT2022-Template/project/"), "itsd-dt2022-template-build")...[0m
-[0m[[0m[0mdebug[0m] [0m[0mDone updating ProjectRef(uri("file:/Users/zzy/Desktop/ITSD-DT2022-Template/ITSD-DT2022-Template/project/"), "itsd-dt2022-template-build")[0m
-[0m[[0m[33mwarn[0m] [0m[0mThere may be incompatibilities among your library dependencies; run 'evicted' to see detailed eviction warnings.[0m
+[debug] "not up to date. inChanged = true, force = false
+[debug] Updating ProjectRef(uri("file:/E:/新桌面/新建文件夹/ITSD/project/"), "itsd-build")...
+[debug] Done updating ProjectRef(uri("file:/E:/新桌面/新建文件夹/ITSD/project/"), "itsd-build")
+[warn] There may be incompatibilities among your library dependencies; run 'evicted' to see detailed eviction warnings.

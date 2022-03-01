@@ -1,2 +1,12 @@
-[0m[[0m[31merror[0m] [0m[0m/Users/zzy/Desktop/ITSD-DT2022-Template/ITSD-DT2022-Template/app/events/CardClicked.java:59:1: 不兼容的类型: boolean无法转换为structures.basic.Unit[0m
-[0m[[0m[31merror[0m] [0m[0mfalse[0m
+[0m[[0m[31merror[0m] [0m[0mE:\新桌面\新建文件夹\ITSD\app\utils\BasicUtils.java:9:1: 找不到符号[0m
+[0m[[0m[31merror[0m] [0m[0m  符号:   类 ActorRef[0m
+[0m[[0m[31merror[0m] [0m[0m  位置: 类 utils.BasicUtils[0m
+[0m[[0m[31merror[0m] [0m[0mActorRef[0m
+[0m[[0m[31merror[0m] [0m[0mE:\新桌面\新建文件夹\ITSD\app\utils\BasicUtils.java:23:1: 找不到符号[0m
+[0m[[0m[31merror[0m] [0m[0m  符号:   类 ActorRef[0m
+[0m[[0m[31merror[0m] [0m[0m  位置: 类 utils.BasicUtils[0m
+[0m[[0m[31merror[0m] [0m[0mActorRef[0m
+[0m[[0m[31merror[0m] [0m[0mE:\新桌面\新建文件夹\ITSD\app\utils\BasicUtils.java:43:1: 找不到符号[0m
+[0m[[0m[31merror[0m] [0m[0m  符号:   类 ActorRef[0m
+[0m[[0m[31merror[0m] [0m[0m  位置: 类 utils.BasicUtils[0m
+[0m[[0m[31merror[0m] [0m[0mActorRef[0m

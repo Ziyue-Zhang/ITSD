@@ -9,6 +9,7 @@ import structures.GameState;
 import structures.basic.*;
 import structures.basic.Unit;
 import utils.BasicObjectBuilders;
+import utils.BasicUtils;
 
 /**
  * Indicates that the user has clicked an object on the game canvas, in this case a tile.
@@ -30,38 +31,9 @@ public class TileClicked implements EventProcessor{
 	int []dx = {0,1,1,1,0,-1,-1,-1,2,0,-2,0};
 	int []dy = {1,1,0,-1,-1,-1,0,1,0,-2,0,2};
 
-	public void highlight_card_off(ActorRef out, GameState gameState){
-		int loc = gameState.getHighlightCard();
-		if(loc!=0){
-			Card last_card = gameState.getHumanCard(loc);
-			BasicCommands.drawCard(out, last_card, loc, 0);
-			gameState.setHighlightCard(loc, 0);
-			try {Thread.sleep(50);} catch (InterruptedException e) {e.printStackTrace();}
-			for(int i = 0; i < 9; i++){
-				for(int j = 0; j < 5; j++){
-					if(gameState.highlight_board[i][j]==1){
-						gameState.highlight_board[i][j] = 0;
-						Tile tile = BasicObjectBuilders.loadTile(i, j);
-						BasicCommands.drawTile(out, tile, 0);
-					}
-				}
-			}
-		}
-		gameState.select_card = false;
-	}
+	int []dx_attack = {0,1,1,1,0,-1,-1,-1};
+	int []dy_attack = {1,1,0,-1,-1,-1,0,1};
 
-	public void highlight_unit_off(ActorRef out, GameState gameState){
-		for(int i = 0; i < 9; i++){
-			for(int j = 0; j < 5; j++){
-				if(gameState.highlight_board[i][j]==1){
-					gameState.highlight_board[i][j] = 0;
-					Tile tile = BasicObjectBuilders.loadTile(i, j);
-					BasicCommands.drawTile(out, tile, 0);
-				}
-			}
-		}
-		gameState.select = false;
-	}
 
 	@Override
 	public void processEvent(ActorRef out, GameState gameState, JsonNode message) {
@@ -71,7 +43,7 @@ public class TileClicked implements EventProcessor{
 		
 		if (gameState.select_card == true) {
 			// do some logic
-			highlight_unit_off(out, gameState);
+			BasicUtils.highlight_unit_off(out, gameState);
 
 			for(Unit unit:gameState.human_unit){
 				Position position = unit.getPosition();
@@ -82,7 +54,7 @@ public class TileClicked implements EventProcessor{
 				}
 				if(Math.abs(tilex-x)<=1 && Math.abs(tiley-y)<=1){
 					int loc = gameState.getHighlightCard();
-					highlight_card_off(out, gameState);
+					BasicUtils.highlight_card_off(out, gameState);
 
 					Card card = gameState.getHumanCard(loc);
 					int m = gameState.humanPlayer.getMana() - card.getManacost();
@@ -93,6 +65,9 @@ public class TileClicked implements EventProcessor{
 					Unit unit1 = gameState.return_Unit(card.getCardname());
 
 					unit1.setPositionByTile(tile1);
+
+					unit1.setAttack(card.getBigCard().getAttack());
+					unit1.setHealth(card.getBigCard().getHealth());
 		
 					gameState.human_unit.add(unit1);
 					gameState.board[tilex][tiley] = 1;
@@ -113,10 +88,20 @@ public class TileClicked implements EventProcessor{
 					return;
 				}
 			}
-			highlight_card_off(out, gameState);
+			BasicUtils.highlight_card_off(out, gameState);
 		}
 		else if(gameState.select == true) {
 			if(gameState.highlight_board[tilex][tiley] == 1){
+				// move
+
+				if(!gameState.select_unit.round_moveable){
+					BasicUtils.highlight_unit_off(out, gameState);
+					BasicCommands.addPlayer1Notification(out, "You can't move in this round!", 2);
+					return;
+				}
+
+				gameState.select_unit.round_moveable = false;
+
 				Unit select_unit = gameState.select_unit;
 				Position position = select_unit.getPosition();
 				int x = position.getTilex();
@@ -127,12 +112,97 @@ public class TileClicked implements EventProcessor{
                 BasicCommands.moveUnitToTile(out, select_unit, tile);
 				gameState.board[x][y] = 0;
 				gameState.board[tilex][tiley] = 1;
+			}else if (gameState.highlight_board[tilex][tiley] == 2){
+				// attack
+
+				if(!gameState.select_unit.round_attackable){
+					BasicCommands.addPlayer1Notification(out, "You can't attack in this round!", 2);
+					return;
+				}
+
+				gameState.select_unit.round_attackable = false;
+
+				// 1. get the attacked enemy
+				Unit enemy = null;
+				for(Unit ai_unit : gameState.ai_unit) {
+					if(ai_unit.getPosition().getTilex() == tilex && ai_unit.getPosition().getTiley() == tiley)
+						enemy = ai_unit;
+				}
+				if(enemy == null) return;
+
+				Unit me = gameState.select_unit;
+
+				// 2. calculate whether enemy will die in this round
+				if(enemy.getHealth() > me.getAttack()) {
+					// enemy not die
+
+					// 3.1 show the attack
+					BasicCommands.playUnitAnimation(out, me, UnitAnimationType.attack);
+					BasicCommands.playUnitAnimation(out, enemy, UnitAnimationType.hit);
+					try {Thread.sleep(1000);} catch (InterruptedException e) {e.printStackTrace();}
+
+					// 3.2 decrease the health of enemy
+					enemy.setHealth(enemy.getHealth() - me.getAttack());
+					BasicCommands.setUnitHealth(out, enemy, enemy.getHealth());
+					try {Thread.sleep(20);} catch (InterruptedException e) {e.printStackTrace();}
+
+					// 3.3 the enemy fights back
+					BasicCommands.playUnitAnimation(out, enemy, UnitAnimationType.attack);
+					BasicCommands.playUnitAnimation(out, me, UnitAnimationType.hit);
+					try {Thread.sleep(1000);} catch (InterruptedException e) {e.printStackTrace();}
+					BasicCommands.playUnitAnimation(out, enemy, UnitAnimationType.idle);
+
+					if(me.getHealth() > enemy.getAttack()) {
+						// me not die
+						BasicCommands.playUnitAnimation(out, me, UnitAnimationType.idle);
+						try {Thread.sleep(20);} catch (InterruptedException e) {e.printStackTrace();}
+
+						// 4. decrease the health of me
+						me.setHealth(me.getHealth() - enemy.getAttack());
+						BasicCommands.setUnitHealth(out, me, me.getHealth());
+						try {Thread.sleep(20);} catch (InterruptedException e) {e.printStackTrace();}
+					}else {
+						// me die
+						BasicCommands.playUnitAnimation(out, me, UnitAnimationType.death);
+						try {Thread.sleep(1000);} catch (InterruptedException e) {e.printStackTrace();}
+
+						// 4.1 del me
+						BasicCommands.deleteUnit(out, me);
+						gameState.board[me.getPosition().getTilex()][me.getPosition().getTiley()] = 0;
+						gameState.human_unit.remove(me);
+
+						// 4.2 if me is boss , ai wins
+						gameState.gameEnd = true;
+						gameState.aiWin = true;
+					}
+
+
+				}else {
+					// enemy die
+
+					// 3.1 show the attack
+					BasicCommands.playUnitAnimation(out, me, UnitAnimationType.attack);
+					BasicCommands.playUnitAnimation(out, enemy, UnitAnimationType.hit);
+					try {Thread.sleep(1000);} catch (InterruptedException e) {e.printStackTrace();}
+					BasicCommands.playUnitAnimation(out, me, UnitAnimationType.idle);
+					BasicCommands.playUnitAnimation(out, enemy, UnitAnimationType.death);
+					try {Thread.sleep(1000);} catch (InterruptedException e) {e.printStackTrace();}
+
+					// 3.2 del the enemy
+					BasicCommands.deleteUnit(out, enemy);
+					gameState.board[enemy.getPosition().getTilex()][enemy.getPosition().getTiley()] = 0;
+					gameState.ai_unit.remove(enemy);
+
+					// 3.3 if the enemy is boos , human wins
+					gameState.gameEnd = true;
+					gameState.humanWin = true;
+				}
 			}
 
-			highlight_unit_off(out, gameState);
+			BasicUtils.highlight_unit_off(out, gameState);
 		}
 		else{
-			highlight_card_off(out, gameState);
+			BasicUtils.highlight_card_off(out, gameState);
 			for(Unit unit:gameState.human_unit){
 				Position position = unit.getPosition();
 				int x = position.getTilex();
@@ -140,6 +210,7 @@ public class TileClicked implements EventProcessor{
 				if(x!=tilex || y!=tiley){
 					continue;
 				}
+				// get achievable position and highlight as 1
 				for(int i = 0; i < 12; i++){
 					int xx=x+dx[i];
 					int yy=y+dy[i];
@@ -149,16 +220,20 @@ public class TileClicked implements EventProcessor{
 						gameState.highlight_board[xx][yy]=1;
 					}
 				}
-				gameState.select = true;
-				gameState.select_unit = unit;
-				for(int i = 0; i < 9; i++){
-					for(int j = 0; j < 5; j++){
-						if(gameState.highlight_board[i][j]==1){
-							Tile tile = BasicObjectBuilders.loadTile(i, j);
-							BasicCommands.drawTile(out, tile, 1);
-						}
+				// get attackable position and highlight as 2
+				for(int i = 0; i < 8; i++){
+					int xx=x+dx_attack[i];
+					int yy=y+dy_attack[i];
+					if(xx<0||yy<0||xx>8||yy>4)
+						continue;
+					for(Unit ai_unit : gameState.ai_unit) {
+						if(ai_unit.getPosition().getTilex() == xx && ai_unit.getPosition().getTiley() == yy)
+							gameState.highlight_board[xx][yy]=2;
 					}
 				}
+				gameState.select = true;
+				gameState.select_unit = unit;
+				BasicUtils.drawHighlightBord(out, gameState);
 				return;
 			}
 		}

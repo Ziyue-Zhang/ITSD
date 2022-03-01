@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import akka.actor.ActorRef;
 import commands.BasicCommands;
 import structures.GameState;
+import structures.basic.Unit;
 import structures.basic.Card;
 import structures.basic.Player;
 import utils.BasicObjectBuilders;
@@ -49,6 +50,16 @@ public class EndTurnClicked implements EventProcessor{
 			BasicCommands.drawCard(out, gameState.getHumanCard(free_index), free_index, 0);
 			try {Thread.sleep(500);} catch (InterruptedException e) {e.printStackTrace();}
 			gameState.deck1_index += 1;
+		}
+
+		for(Unit ai_unit : gameState.ai_unit) {
+			ai_unit.round_attackable = true;
+			ai_unit.round_moveable = true;
+		}
+
+		for(Unit human_unit : gameState.human_unit) {
+			human_unit.round_attackable = true;
+			human_unit.round_moveable = true;
 		}
 		
 	}

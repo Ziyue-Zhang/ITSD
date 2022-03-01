@@ -42,6 +42,10 @@ public class GameState {
 
 	public int deck1_index = 0;
 
+	public boolean gameEnd = false;
+	public boolean aiWin = false;
+	public boolean humanWin = false;
+
 	public String[] deck1Cards = {
 		StaticConfFiles.c_azure_herald,
 		StaticConfFiles.c_azurite_lion,
