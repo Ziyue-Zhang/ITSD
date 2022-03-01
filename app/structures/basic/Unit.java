@@ -27,6 +27,9 @@ public class Unit {
 	ImageCorrection correction;
 	public boolean move = true;
 	public boolean attack = true;
+
+	public int hth = 0;
+	public int atk = 0;
 	
 	public Unit() {}
 	

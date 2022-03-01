@@ -48,6 +48,8 @@ public class Initalize implements EventProcessor{
 		Tile tile_human = BasicObjectBuilders.loadTile(1,2);
 		Unit unit_human = gameState.return_Unit("humanAvatar");
 		unit_human.setPositionByTile(tile_human);
+		unit_human.atk = 2;
+		unit_human.hth = 20;
 		
 		gameState.human_unit.add(unit_human);
 		gameState.board[1][2] = 1;
@@ -62,6 +64,8 @@ public class Initalize implements EventProcessor{
 		Tile tile_ai = BasicObjectBuilders.loadTile(7,2);
 		Unit unit_ai = gameState.return_enemy_unit("aiAvatar");
 		unit_ai.setPositionByTile(tile_ai);
+		unit_ai.atk = 2;
+		unit_ai.hth = 20;
 		
 		gameState.ai_unit.add(unit_ai);
 		gameState.board[7][2] = 2;

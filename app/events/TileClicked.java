@@ -97,11 +97,13 @@ public class TileClicked implements EventProcessor{
 					gameState.human_unit.add(unit1);
 					gameState.board[tilex][tiley] = 1;
 
+					unit1.atk = card.getBigCard().getAttack();
+					unit1.hth = card.getBigCard().getHealth();
 					BasicCommands.drawUnit(out, unit1, tile1);
 					try {Thread.sleep(50);} catch (InterruptedException e) {e.printStackTrace();}	
-					BasicCommands.setUnitAttack(out, unit1, card.getBigCard().getAttack());
+					BasicCommands.setUnitAttack(out, unit1, unit1.atk);
 					try {Thread.sleep(50);} catch (InterruptedException e) {e.printStackTrace();}	
-					BasicCommands.setUnitHealth(out, unit1, card.getBigCard().getHealth());
+					BasicCommands.setUnitHealth(out, unit1, unit1.hth);
 					try {Thread.sleep(50);} catch (InterruptedException e) {e.printStackTrace();}
 				
 					BasicCommands.deleteCard(out, loc);
@@ -117,6 +119,7 @@ public class TileClicked implements EventProcessor{
 		}
 		else if(gameState.select == true) {
 			if(gameState.highlight_board[tilex][tiley] == 1){
+				highlight_unit_off(out, gameState);
 				Unit select_unit = gameState.select_unit;
 				Position position = select_unit.getPosition();
 				int x = position.getTilex();
@@ -130,12 +133,67 @@ public class TileClicked implements EventProcessor{
 				gameState.board[tilex][tiley] = 1;
 			}
 			else if(gameState.highlight_board[tilex][tiley] == 2){
+				highlight_unit_off(out, gameState);
 				Unit select_unit = gameState.select_unit;
-				
-				select_unit.attack = false;
-			}
 
-			highlight_unit_off(out, gameState);
+				for(Unit enemy:gameState.ai_unit){
+					Position position = enemy.getPosition();
+					int x = position.getTilex();
+					int y = position.getTiley();
+					if(x == tilex && y ==tiley){
+						BasicCommands.playUnitAnimation(out, select_unit, UnitAnimationType.attack);
+						try {Thread.sleep(500);} catch (InterruptedException e) {e.printStackTrace();}
+						if(select_unit.atk >= enemy.hth){
+							BasicCommands.playUnitAnimation(out, enemy, UnitAnimationType.death);
+							try {Thread.sleep(500);} catch (InterruptedException e) {e.printStackTrace();}
+
+							BasicCommands.addPlayer1Notification(out, "deleteUnit", 2);
+							gameState.ai_unit.remove(enemy);
+							gameState.board[x][y] = 0;
+							BasicCommands.deleteUnit(out, enemy);
+							try {Thread.sleep(500);} catch (InterruptedException e) {e.printStackTrace();}
+
+							BasicCommands.playUnitAnimation(out, select_unit, UnitAnimationType.idle);
+
+						}
+						else if(enemy.atk >= select_unit.hth){
+
+							enemy.hth = enemy.hth - select_unit.atk;
+							BasicCommands.setUnitHealth(out, enemy, enemy.hth);
+							try {Thread.sleep(500);} catch (InterruptedException e) {e.printStackTrace();}
+
+							BasicCommands.playUnitAnimation(out, select_unit, UnitAnimationType.death);
+							try {Thread.sleep(500);} catch (InterruptedException e) {e.printStackTrace();}
+
+							BasicCommands.addPlayer1Notification(out, "deleteUnit", 2);
+							gameState.human_unit.remove(select_unit);
+							Position position2 = select_unit.getPosition();
+							int xx = position2.getTilex();
+							int yy = position2.getTiley();
+							gameState.board[xx][yy] = 0;
+							BasicCommands.deleteUnit(out, select_unit);
+							try {Thread.sleep(500);} catch (InterruptedException e) {e.printStackTrace();}
+						}
+						else{
+							select_unit.hth = select_unit.hth - enemy.atk;
+							enemy.hth = enemy.hth - select_unit.atk;
+							BasicCommands.setUnitHealth(out, select_unit, select_unit.hth);
+							try {Thread.sleep(500);} catch (InterruptedException e) {e.printStackTrace();}	
+							BasicCommands.setUnitHealth(out, enemy, enemy.hth);
+							try {Thread.sleep(500);} catch (InterruptedException e) {e.printStackTrace();}
+							
+							BasicCommands.playUnitAnimation(out, select_unit, UnitAnimationType.idle);
+						}
+						select_unit.attack = false;
+						break;
+					}
+				}
+				
+			}
+			else{
+				highlight_unit_off(out, gameState);
+			}
+			
 		}
 		else{
 			highlight_card_off(out, gameState);
@@ -179,6 +237,7 @@ public class TileClicked implements EventProcessor{
 							gameState.highlight_board[xx][yy]=1;
 						}
 					}
+					gameState.highlight_board[x][y]=1;
 					gameState.select = true;
 					gameState.select_unit = unit;
 					for(int i = 0; i < 9; i++){

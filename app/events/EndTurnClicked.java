@@ -25,6 +25,12 @@ public class EndTurnClicked implements EventProcessor{
 
 	@Override
 	public void processEvent(ActorRef out, GameState gameState, JsonNode message) {
+		if(gameState.ai_unit.size()==0){
+			BasicCommands.addPlayer1Notification(out, "You win!", 2);
+			try {Thread.sleep(10000);} catch (InterruptedException e) {e.printStackTrace();}
+			return;
+		}
+
 		Player humanPlayer = gameState.getHumanPlayer();
 		Player aiPlayer = gameState.getAiPlayer();
 		int m = ++gameState.turn_number+1;
@@ -57,6 +63,7 @@ public class EndTurnClicked implements EventProcessor{
 			unit.move = true;
 			unit.attack = true;
 		}
+
 		
 	}
 
