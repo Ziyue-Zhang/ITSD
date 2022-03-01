@@ -22,11 +22,13 @@ public class GameState {
 	public boolean gameInitalised = false;
 	
 	public boolean something = false;
+	public boolean select_card = false;
 
 	public Player humanPlayer;
 	public Player aiPlayer;
 
 	public int[][] board = new int[9][5];
+	public int[][] highlight_board = new int[9][5];
 	public int turn_number;
 
 	public List<Unit> human_unit = new ArrayList<Unit>();
@@ -34,6 +36,32 @@ public class GameState {
 
 	public Card[] human_card = new Card[7];
 	public int[] highlight_card = new int[7];
+
+	public String[] deck1Cards = {
+		StaticConfFiles.c_azure_herald,
+		StaticConfFiles.c_azurite_lion,
+		StaticConfFiles.c_comodo_charger,
+		StaticConfFiles.c_fire_spitter,
+		StaticConfFiles.c_hailstone_golem,
+		StaticConfFiles.c_ironcliff_guardian,
+		StaticConfFiles.c_pureblade_enforcer,
+		StaticConfFiles.c_silverguard_knight,
+		StaticConfFiles.c_sundrop_elixir,
+		StaticConfFiles.c_truestrike
+	};
+
+	public String[] deck2Cards = {
+		StaticConfFiles.c_blaze_hound,
+		StaticConfFiles.c_bloodshard_golem,
+		StaticConfFiles.c_entropic_decay,
+		StaticConfFiles.c_hailstone_golem,
+		StaticConfFiles.c_planar_scout,
+		StaticConfFiles.c_pyromancer,
+		StaticConfFiles.c_serpenti,
+		StaticConfFiles.c_rock_pulveriser,
+		StaticConfFiles.c_staff_of_ykir,
+		StaticConfFiles.c_windshrike,
+	};
 
 	public Player getHumanPlayer() {return humanPlayer;}
 	public Player getAiPlayer() {return aiPlayer;}
@@ -54,21 +82,21 @@ public class GameState {
 		switch (name) {
 			case "humanAvatar" : 
 				return BasicObjectBuilders.loadUnit(StaticConfFiles.humanAvatar, 0, Unit.class);
-			case "comodo_charger" : 
+			case "Comodo Charger" : 
 				return BasicObjectBuilders.loadUnit(StaticConfFiles.u_comodo_charger, 1, Unit.class);
-			case "azure_herald" : 
+			case "Azure Herald" : 
 				return BasicObjectBuilders.loadUnit(StaticConfFiles.u_azure_herald, 2, Unit.class);
-			case "azurite_lion" : 
+			case "Azurite Lion" : 
 				return BasicObjectBuilders.loadUnit(StaticConfFiles.u_azurite_lion, 3, Unit.class);
-			case "fire_spitter" : 
+			case "Fire Spitter" : 
 				return BasicObjectBuilders.loadUnit(StaticConfFiles.u_fire_spitter, 4, Unit.class);
-			case "hailstone_golem" : 
+			case "Hailstone Golem" : 
 				return BasicObjectBuilders.loadUnit(StaticConfFiles.u_hailstone_golem, 5, Unit.class);
-			case "ironcliff_guardian" : 
+			case "Ironcliff Guardian" : 
 				return BasicObjectBuilders.loadUnit(StaticConfFiles.u_ironcliff_guardian, 6, Unit.class);
-			case "pureblade_enforcer" : 
+			case "Pureblade Enforcer" : 
 				return BasicObjectBuilders.loadUnit(StaticConfFiles.u_pureblade_enforcer, 7, Unit.class);
-			case "silverguard_knight" : 
+			case "Silverguard Knight" : 
 				return BasicObjectBuilders.loadUnit(StaticConfFiles.u_silverguard_knight, 8, Unit.class);
 			default :
 		}
@@ -80,21 +108,21 @@ public class GameState {
 		switch (name) {
 			case "aiAvatar" : 
 				return BasicObjectBuilders.loadUnit(StaticConfFiles.aiAvatar, 9, Unit.class);
-			case "blaze_hound" : 
+			case "Blaze Hound" : 
 				return BasicObjectBuilders.loadUnit(StaticConfFiles.u_blaze_hound, 10, Unit.class);
-			case "bloodshard_golem" : 
+			case "Bloodshard Golem" : 
 				return BasicObjectBuilders.loadUnit(StaticConfFiles.u_bloodshard_golem, 11, Unit.class);
-			case "hailstone_golemR" : 
+			case "Hailstone GolemR" : 
 				return BasicObjectBuilders.loadUnit(StaticConfFiles.u_hailstone_golemR, 12, Unit.class);
-			case "planar_scout" : 
+			case "Planar Scout" : 
 				return BasicObjectBuilders.loadUnit(StaticConfFiles.u_planar_scout, 13, Unit.class);
-			case "pyromancer" : 
+			case "Pyromancer" : 
 				return BasicObjectBuilders.loadUnit(StaticConfFiles.u_pyromancer, 14, Unit.class);
-			case "rock_pulveriser" : 
+			case "Rock Pulveriser" : 
 				return BasicObjectBuilders.loadUnit(StaticConfFiles.u_rock_pulveriser, 15, Unit.class);
-			case "serpenti" : 
+			case "Serpenti" : 
 				return BasicObjectBuilders.loadUnit(StaticConfFiles.u_serpenti, 16, Unit.class);
-			case "windshrike" : 
+			case "Windshrike" : 
 				return BasicObjectBuilders.loadUnit(StaticConfFiles.u_windshrike, 17, Unit.class);
 			default :
 		}

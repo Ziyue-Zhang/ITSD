@@ -100,23 +100,10 @@ public class Initalize implements EventProcessor{
 		BasicCommands.setPlayer2Mana(out, aiPlayer);
 		try {Thread.sleep(1000);} catch (InterruptedException e) {e.printStackTrace();}
 
-		//deck1CardsDefinition
-		String[] deck1Cards = {
-			StaticConfFiles.c_azure_herald,
-			StaticConfFiles.c_azurite_lion,
-			StaticConfFiles.c_comodo_charger,
-			StaticConfFiles.c_fire_spitter,
-			StaticConfFiles.c_hailstone_golem,
-			StaticConfFiles.c_ironcliff_guardian,
-			StaticConfFiles.c_pureblade_enforcer,
-			StaticConfFiles.c_silverguard_knight,
-			StaticConfFiles.c_sundrop_elixir,
-			StaticConfFiles.c_truestrike
-		};
-
+		
 		for (int i = 0; i <= 2; i++) {
 			// drawCard
-			Card card = BasicObjectBuilders.loadCard(deck1Cards[i], i, Card.class);
+			Card card = BasicObjectBuilders.loadCard(gameState.deck1Cards[i], i, Card.class);
 			gameState.setHumanCard(i+1, card);
 			gameState.setHighlightCard(i+1, 0);
 			BasicCommands.drawCard(out, gameState.getHumanCard(i+1), i+1, 0);

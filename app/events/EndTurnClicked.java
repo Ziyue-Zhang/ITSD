@@ -30,13 +30,13 @@ public class EndTurnClicked implements EventProcessor{
 		BasicCommands.addPlayer1Notification(out, "setPlayer1Mana ("+m+")", 1);
 		humanPlayer.setMana(m);
 		BasicCommands.setPlayer1Mana(out, humanPlayer);
-		try {Thread.sleep(1000);} catch (InterruptedException e) {e.printStackTrace();}
+		try {Thread.sleep(500);} catch (InterruptedException e) {e.printStackTrace();}
 
 		// Mana
 		BasicCommands.addPlayer1Notification(out, "setPlayer2Mana ("+m+")", 1);
 		aiPlayer.setMana(m);
 		BasicCommands.setPlayer2Mana(out, aiPlayer);
-		try {Thread.sleep(1000);} catch (InterruptedException e) {e.printStackTrace();}
+		try {Thread.sleep(500);} catch (InterruptedException e) {e.printStackTrace();}
 
 		
 	}
