@@ -46,7 +46,9 @@ public class TileClicked implements EventProcessor{
 					}
 				}
 			}
+			try {Thread.sleep(100);} catch (InterruptedException e) {e.printStackTrace();}
 		}
+		
 		gameState.select_card = false;
 	}
 
@@ -60,6 +62,7 @@ public class TileClicked implements EventProcessor{
 				}
 			}
 		}
+		try {Thread.sleep(100);} catch (InterruptedException e) {e.printStackTrace();}
 		gameState.select = false;
 	}
 
@@ -225,6 +228,7 @@ public class TileClicked implements EventProcessor{
 							}
 						}
 					}
+					try {Thread.sleep(100);} catch (InterruptedException e) {e.printStackTrace();}
 					return;
 				}
 				else{
@@ -248,6 +252,7 @@ public class TileClicked implements EventProcessor{
 							}
 						}
 					}
+					try {Thread.sleep(100);} catch (InterruptedException e) {e.printStackTrace();}
 					return;
 				}
 				

@@ -50,6 +50,8 @@ public class Initalize implements EventProcessor{
 		unit_human.setPositionByTile(tile_human);
 		unit_human.atk = 2;
 		unit_human.hth = 20;
+		unit_human.attack = true;
+		unit_human.move = true;
 		
 		gameState.human_unit.add(unit_human);
 		gameState.board[1][2] = 1;
@@ -66,6 +68,8 @@ public class Initalize implements EventProcessor{
 		unit_ai.setPositionByTile(tile_ai);
 		unit_ai.atk = 2;
 		unit_ai.hth = 20;
+		unit_ai.attack = true;
+		unit_ai.move = true;
 		
 		gameState.ai_unit.add(unit_ai);
 		gameState.board[7][2] = 2;
