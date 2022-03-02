@@ -1,6 +1,6 @@
 // @GENERATOR:play-routes-compiler
-// @SOURCE:E:/新桌面/新建文件夹/ITSD/conf/routes
-// @DATE:Tue Mar 01 21:57:28 CST 2022
+// @SOURCE:/Users/zzy/Desktop/ITSD-DT2022-Template/ITSD/conf/routes
+// @DATE:Wed Mar 02 15:52:43 CST 2022
 
 
 package router {

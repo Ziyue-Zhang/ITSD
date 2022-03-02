@@ -116,6 +116,7 @@ public class Initalize implements EventProcessor{
 		for (int i = 0; i < 3; i++) {
 			// drawCard
 			gameState.deck1_index += 1;
+			gameState.deck1_count += 1;
 			Card card = BasicObjectBuilders.loadCard(gameState.deck1Cards[i], i, Card.class);
 			gameState.setHumanCard(i+1, card);
 			gameState.setHighlightCard(i+1, 0);
