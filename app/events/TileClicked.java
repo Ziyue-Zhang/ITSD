@@ -256,14 +256,21 @@ public class TileClicked implements EventProcessor{
 					}
 				}
 				// get attackable position and highlight as 2
-				for(int i = 0; i < 8; i++){
-					int xx=x+dx_attack[i];
-					int yy=y+dy_attack[i];
-					if(xx<0||yy<0||xx>8||yy>4)
-						continue;
+				if(unit.getId() == 4) {
+					//Fire Spitter
 					for(Unit ai_unit : gameState.ai_unit) {
-						if(ai_unit.getPosition().getTilex() == xx && ai_unit.getPosition().getTiley() == yy)
-							gameState.highlight_board[xx][yy]=2;
+							gameState.highlight_board[ai_unit.getPosition().getTilex()][ai_unit.getPosition().getTiley()]=2;
+					}
+				} else {
+					for(int i = 0; i < 8; i++){
+						int xx=x+dx_attack[i];
+						int yy=y+dy_attack[i];
+						if(xx<0||yy<0||xx>8||yy>4)
+							continue;
+						for(Unit ai_unit : gameState.ai_unit) {
+							if(ai_unit.getPosition().getTilex() == xx && ai_unit.getPosition().getTiley() == yy)
+								gameState.highlight_board[xx][yy]=2;
+						}
 					}
 				}
 				gameState.select = true;
