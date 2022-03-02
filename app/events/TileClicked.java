@@ -1,6 +1,8 @@
 package events;
 
 
+import javax.xml.stream.EventFilter;
+
 import com.fasterxml.jackson.databind.JsonNode;
 
 import akka.actor.ActorRef;
@@ -10,6 +12,7 @@ import structures.basic.*;
 import structures.basic.Unit;
 import utils.BasicObjectBuilders;
 import utils.BasicUtils;
+import utils.StaticConfFiles;
 
 /**
  * Indicates that the user has clicked an object on the game canvas, in this case a tile.
@@ -43,6 +46,196 @@ public class TileClicked implements EventProcessor{
 		
 		if (gameState.select_card == true) {
 			// do some logic
+			int highlight_card_index = gameState.getHighlightCard();
+			Card highlight_card = gameState.getHumanCard(highlight_card_index);
+
+			/*
+			** spell logic start
+			*/
+			if(highlight_card.getCardname().equals("Truestrike")){
+
+				if(gameState.highlight_board[tilex][tiley] == 2){
+					// find this enemy
+					Unit enemy = null;
+					for(Unit ai_unit : gameState.ai_unit) {
+						if(ai_unit.getPosition().getTilex() == tilex && ai_unit.getPosition().getTiley() == tiley) {
+							enemy = ai_unit;
+						}
+					}
+
+					BasicUtils.highlight_unit_off(out, gameState);
+					BasicUtils.highlight_card_off(out, gameState);
+
+					// clear the card 
+					BasicCommands.deleteCard(out, highlight_card_index);
+					gameState.setHumanCard(highlight_card_index, null);
+					
+					Card[] cards_left = new Card[7];
+					int slot = 1;
+					for(int i = 1 ; i < 7 ; i++) {
+						if(gameState.getHumanCard(i) != null) {
+							cards_left[slot] = gameState.getHumanCard(i);
+							BasicCommands.deleteCard(out, i);
+							slot++;
+						}
+					}
+					gameState.human_card = cards_left;
+
+					for(int i = 1 ; i < 7 ; i++) {
+						if(cards_left[i] != null) {
+							BasicCommands.drawCard(out, gameState.getHumanCard(i), i, 0);
+						}
+					}
+
+					// damage this enemy
+					BasicCommands.playUnitAnimation(out, enemy, UnitAnimationType.hit);
+					EffectAnimation spell_effect = BasicObjectBuilders.loadEffect(StaticConfFiles.f1_inmolation);
+					Tile tile = BasicObjectBuilders.loadTile(tilex, tiley);
+					BasicCommands.drawTile(out, tile, 0);
+					BasicCommands.playEffectAnimation(out, spell_effect, tile);
+
+					if(enemy.getHealth() > 2) {
+						// not die
+						try {Thread.sleep(1000);} catch (InterruptedException e) {e.printStackTrace();}
+						BasicCommands.playUnitAnimation(out, enemy, UnitAnimationType.idle);
+						enemy.setHealth(enemy.getHealth() - 2); 
+						BasicCommands.setUnitHealth(out, enemy, enemy.getHealth());
+
+						if(enemy.getId() == gameState.ai_boss_id) {
+							gameState.aiPlayer.setHealth(enemy.getHealth());
+							BasicCommands.setPlayer2Health(out, gameState.aiPlayer);
+						}
+
+					}else {
+						// die
+						try {Thread.sleep(1000);} catch (InterruptedException e) {e.printStackTrace();}
+						BasicCommands.playUnitAnimation(out, enemy, UnitAnimationType.death);
+						try {Thread.sleep(1000);} catch (InterruptedException e) {e.printStackTrace();}
+						BasicCommands.deleteUnit(out, enemy);
+						gameState.board[enemy.getPosition().getTilex()][enemy.getPosition().getTiley()] = 0;
+						gameState.ai_unit.remove(enemy);
+
+						if(enemy.getId() == gameState.ai_boss_id) {
+							gameState.aiPlayer.setHealth(0);
+							BasicCommands.setPlayer2Health(out, gameState.aiPlayer);
+							BasicCommands.addPlayer1Notification(out, "You win this game!", 2);
+							gameState.gameEnd = true;
+							gameState.humanWin = true;
+						}
+					}
+
+					//Pureblade Enforcer can gain from spell
+					for(Unit humaUnit : gameState.human_unit) {
+						if(humaUnit.getId() == 7) {
+							humaUnit.setAttack(humaUnit.getAttack() + 1);
+							humaUnit.setHealth(humaUnit.getHealth() + 1);
+							if(humaUnit.getHealth() > humaUnit.max_health)
+								humaUnit.max_health = humaUnit.getHealth();
+
+							BasicCommands.setUnitAttack(out, humaUnit, humaUnit.getAttack());
+							BasicCommands.setUnitHealth(out, humaUnit, humaUnit.getHealth());
+						}
+					}
+
+
+				}else {
+					BasicUtils.highlight_card_off(out, gameState);
+					BasicUtils.highlight_unit_off(out, gameState);
+					return;
+				}
+
+				return;
+			}else if(highlight_card.getCardname().equals("Sundrop Elixir")){
+				// find this unit
+				if(gameState.highlight_board[tilex][tiley] == 1){
+					Unit me = null;
+					for(Unit human_unit : gameState.human_unit) {
+						if(human_unit.getPosition().getTilex() == tilex && human_unit.getPosition().getTiley() == tiley) {
+							me = human_unit;
+						}
+					}
+
+					BasicUtils.highlight_unit_off(out, gameState);
+					BasicUtils.highlight_card_off(out, gameState);
+
+					// clear the card 
+					BasicCommands.deleteCard(out, highlight_card_index);
+					gameState.setHumanCard(highlight_card_index, null);
+					
+					Card[] cards_left = new Card[7];
+					int slot = 1;
+					for(int i = 1 ; i < 7 ; i++) {
+						if(gameState.getHumanCard(i) != null) {
+							cards_left[slot] = gameState.getHumanCard(i);
+							BasicCommands.deleteCard(out, i);
+							slot++;
+						}
+					}
+					gameState.human_card = cards_left;
+
+					for(int i = 1 ; i < 7 ; i++) {
+						if(cards_left[i] != null) {
+							BasicCommands.drawCard(out, gameState.getHumanCard(i), i, 0);
+						}
+					}
+
+					// heal this unit
+					BasicCommands.playUnitAnimation(out, me, UnitAnimationType.move);
+					EffectAnimation spell_effect = BasicObjectBuilders.loadEffect(StaticConfFiles.f1_martyrdom);
+					Tile tile = BasicObjectBuilders.loadTile(tilex, tiley);
+					BasicCommands.drawTile(out, tile, 0);
+					BasicCommands.playEffectAnimation(out, spell_effect, tile);
+
+					if(me.getHealth() + 5 <= me.max_health) {
+						// not overflow
+						try {Thread.sleep(1000);} catch (InterruptedException e) {e.printStackTrace();}
+						BasicCommands.playUnitAnimation(out, me, UnitAnimationType.idle);
+						me.setHealth(me.getHealth() + 5); 
+						BasicCommands.setUnitHealth(out, me, me.getHealth());
+
+						if(me.getId() == gameState.human_boss_id) {
+							gameState.humanPlayer.setHealth(me.getHealth());
+							BasicCommands.setPlayer1Health(out, gameState.humanPlayer);
+						}
+
+					}else {
+						// overflow
+						try {Thread.sleep(1000);} catch (InterruptedException e) {e.printStackTrace();}
+						BasicCommands.playUnitAnimation(out, me, UnitAnimationType.idle);
+						me.setHealth(me.max_health); 
+						BasicCommands.setUnitHealth(out, me, me.getHealth());
+
+						if(me.getId() == gameState.human_boss_id) {
+							gameState.humanPlayer.setHealth(me.getHealth());
+							BasicCommands.setPlayer1Health(out, gameState.humanPlayer);
+						}
+					}
+
+					//Pureblade Enforcer can gain from spell
+					for(Unit humaUnit : gameState.human_unit) {
+						if(humaUnit.getId() == 7) {
+							humaUnit.setAttack(humaUnit.getAttack() + 1);
+							humaUnit.setHealth(humaUnit.getHealth() + 1);
+							if(humaUnit.getHealth() > humaUnit.max_health)
+								humaUnit.max_health = humaUnit.getHealth();
+
+							BasicCommands.setUnitAttack(out, humaUnit, humaUnit.getAttack());
+							BasicCommands.setUnitHealth(out, humaUnit, humaUnit.getHealth());
+						}
+					}
+
+			}else {
+				BasicUtils.highlight_card_off(out, gameState);
+				BasicUtils.highlight_unit_off(out, gameState);
+				return;
+			}
+				return;
+			}
+
+			/*
+			** spell logic end 
+			*/
+
 			BasicUtils.highlight_unit_off(out, gameState);
 
 			for(Unit unit:gameState.human_unit){
@@ -68,11 +261,14 @@ public class TileClicked implements EventProcessor{
 
 					unit1.setAttack(card.getBigCard().getAttack());
 					unit1.setHealth(card.getBigCard().getHealth());
+					unit1.max_health = unit1.getHealth();
 		
 					gameState.human_unit.add(unit1);
 					gameState.board[tilex][tiley] = 1;
 
+					EffectAnimation effect = BasicObjectBuilders.loadEffect(StaticConfFiles.f1_martyrdom);
 					BasicCommands.drawUnit(out, unit1, tile1);
+					BasicCommands.playEffectAnimation(out, effect, tile1);
 					try {Thread.sleep(50);} catch (InterruptedException e) {e.printStackTrace();}	
 					BasicCommands.setUnitAttack(out, unit1, card.getBigCard().getAttack());
 					try {Thread.sleep(50);} catch (InterruptedException e) {e.printStackTrace();}	
@@ -185,41 +381,54 @@ public class TileClicked implements EventProcessor{
 						}
 						try {Thread.sleep(20);} catch (InterruptedException e) {e.printStackTrace();}
 	
-						// 3.3 the enemy fights back
-						BasicCommands.playUnitAnimation(out, enemy, UnitAnimationType.attack);
-						BasicCommands.playUnitAnimation(out, me, UnitAnimationType.hit);
-						try {Thread.sleep(1000);} catch (InterruptedException e) {e.printStackTrace();}
-						BasicCommands.playUnitAnimation(out, enemy, UnitAnimationType.idle);
-	
-						if(me.getHealth() > enemy.getAttack()) {
-							// me not die
-							BasicCommands.playUnitAnimation(out, me, UnitAnimationType.idle);
-							try {Thread.sleep(20);} catch (InterruptedException e) {e.printStackTrace();}
-	
-							// 4. decrease the health of me
-							me.setHealth(me.getHealth() - enemy.getAttack());
-							BasicCommands.setUnitHealth(out, me, me.getHealth());
-							if(me.getId() == gameState.human_boss_id) {
-								gameState.getHumanPlayer().setHealth(me.getHealth());
-								BasicCommands.setPlayer1Health(out, gameState.getHumanPlayer());
-							}
-							try {Thread.sleep(20);} catch (InterruptedException e) {e.printStackTrace();}
-						}else {
-							// me die
-							BasicCommands.playUnitAnimation(out, me, UnitAnimationType.death);
+						// 3.3 the enemy fights back only if the enemy can attack 
+						if(Math.abs(me.getPosition().getTilex() - enemy.getPosition().getTilex()) <= 1 && Math.abs(me.getPosition().getTiley() - enemy.getPosition().getTiley()) <= 1) {
+							BasicCommands.playUnitAnimation(out, enemy, UnitAnimationType.attack);
+							BasicCommands.playUnitAnimation(out, me, UnitAnimationType.hit);
 							try {Thread.sleep(1000);} catch (InterruptedException e) {e.printStackTrace();}
-	
-							// 4.1 del me
-							BasicCommands.deleteUnit(out, me);
-							gameState.board[me.getPosition().getTilex()][me.getPosition().getTiley()] = 0;
-							gameState.human_unit.remove(me);
-	
-							// 4.2 if me is boss , ai wins
-							if(me.getId() == gameState.human_boss_id) {
-								BasicCommands.addPlayer1Notification(out, "AI wins this game!", 2);
-								gameState.gameEnd = true;
-								gameState.aiWin = true;
+							BasicCommands.playUnitAnimation(out, enemy, UnitAnimationType.idle);
+		
+							if(me.getHealth() > enemy.getAttack()) {
+								// me not die
+								BasicCommands.playUnitAnimation(out, me, UnitAnimationType.idle);
+								try {Thread.sleep(20);} catch (InterruptedException e) {e.printStackTrace();}
+		
+								// 4. decrease the health of me
+								me.setHealth(me.getHealth() - enemy.getAttack());
+								BasicCommands.setUnitHealth(out, me, me.getHealth());
+								if(me.getId() == gameState.human_boss_id) {
+									gameState.getHumanPlayer().setHealth(me.getHealth());
+									BasicCommands.setPlayer1Health(out, gameState.getHumanPlayer());
+
+									// Silverguard Knight will benefit when boss is under attack
+									for(Unit humaUnit : gameState.human_unit) {
+										if(humaUnit.getId() == 8) {
+											humaUnit.setAttack(humaUnit.getAttack() + 1);
+				
+											BasicCommands.setUnitAttack(out, humaUnit, humaUnit.getAttack());
+										}
+									}
+								}
+								try {Thread.sleep(20);} catch (InterruptedException e) {e.printStackTrace();}
+							}else {
+								// me die
+								BasicCommands.playUnitAnimation(out, me, UnitAnimationType.death);
+								try {Thread.sleep(1000);} catch (InterruptedException e) {e.printStackTrace();}
+		
+								// 4.1 del me
+								BasicCommands.deleteUnit(out, me);
+								gameState.board[me.getPosition().getTilex()][me.getPosition().getTiley()] = 0;
+								gameState.human_unit.remove(me);
+		
+								// 4.2 if me is boss , ai wins
+								if(me.getId() == gameState.human_boss_id) {
+									BasicCommands.addPlayer1Notification(out, "AI wins this game!", 2);
+									gameState.gameEnd = true;
+									gameState.aiWin = true;
+								}
 							}
+						}else{
+							BasicCommands.playUnitAnimation(out, me, UnitAnimationType.idle);
 						}
 	
 	

@@ -36,7 +36,8 @@ public class CardClicked implements EventProcessor{
 		BasicUtils.highlight_unit_off(out, gameState);
 
 		if(gameState.highlight_card[handPosition] == 1){
-			//self 
+			// double click self
+
 			BasicUtils.highlight_card_off(out, gameState);
 			return;
 		}
@@ -65,6 +66,17 @@ public class CardClicked implements EventProcessor{
 						gameState.highlight_board[i][j] = 1;
 					}
 				}
+			}
+		} else if (card.getCardname().equals("Truestrike")) {
+			// a spell to attack a enemy
+			for(Unit enemy_unit : gameState.ai_unit) {
+				gameState.highlight_board[enemy_unit.getPosition().getTilex()][enemy_unit.getPosition().getTiley()] = 2;
+			}
+
+		} else if(card.getCardname().equals("Sundrop Elixir")) {
+			// a spell to heal a unit
+			for(Unit human_unit : gameState.human_unit) {
+				gameState.highlight_board[human_unit.getPosition().getTilex()][human_unit.getPosition().getTiley()] = 1;
 			}
 		} else {
 			for(Unit unit:gameState.human_unit){

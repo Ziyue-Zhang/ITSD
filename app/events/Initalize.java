@@ -51,6 +51,7 @@ public class Initalize implements EventProcessor{
 
 		unit_human.setAttack(2);
 		unit_human.setHealth(20);
+		unit_human.max_health = 20;
 
 		gameState.human_boss_id = unit_human.getId();
 		
@@ -70,6 +71,7 @@ public class Initalize implements EventProcessor{
 
 		unit_ai.setAttack(2);
 		unit_ai.setHealth(20);
+		unit_ai.max_health = 20;
 
 		gameState.ai_boss_id = unit_ai.getId();
 		

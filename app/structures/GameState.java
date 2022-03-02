@@ -58,8 +58,8 @@ public class GameState {
 		StaticConfFiles.c_ironcliff_guardian,
 		StaticConfFiles.c_pureblade_enforcer,
 		StaticConfFiles.c_silverguard_knight,
-		//StaticConfFiles.c_sundrop_elixir,
-		//StaticConfFiles.c_truestrike
+		StaticConfFiles.c_sundrop_elixir,
+		StaticConfFiles.c_truestrike
 	};
 
 	public String[] deck2Cards = {

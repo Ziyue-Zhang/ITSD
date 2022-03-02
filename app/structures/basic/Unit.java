@@ -28,6 +28,8 @@ public class Unit {
 	int attack;
 	int health;
 
+	public int max_health;
+
 	public boolean round_moveable = true;
 	public boolean round_attackable = true;
 	
