@@ -35,6 +35,12 @@ public class CardClicked implements EventProcessor{
 
 		BasicUtils.highlight_unit_off(out, gameState);
 
+		if(gameState.highlight_card[handPosition] == 1){
+			//self 
+			BasicUtils.highlight_card_off(out, gameState);
+			return;
+		}
+
 		if(gameState.select_card){
 			BasicUtils.highlight_card_off(out, gameState);
 		}

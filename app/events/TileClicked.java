@@ -53,6 +53,7 @@ public class TileClicked implements EventProcessor{
 					break;
 				}
 				if(Math.abs(tilex-x)<=1 && Math.abs(tiley-y)<=1){
+					// play a card 
 					int loc = gameState.getHighlightCard();
 					BasicUtils.highlight_card_off(out, gameState);
 
@@ -85,6 +86,23 @@ public class TileClicked implements EventProcessor{
 					gameState.humanPlayer.setMana(m);
 					BasicCommands.setPlayer1Mana(out, gameState.humanPlayer);
 					try {Thread.sleep(500);} catch (InterruptedException e) {e.printStackTrace();}
+
+					Card[] cards_left = new Card[7];
+					int slot = 1;
+					for(int i = 1 ; i < 7 ; i++) {
+						if(gameState.getHumanCard(i) != null) {
+							cards_left[slot] = gameState.getHumanCard(i);
+							BasicCommands.deleteCard(out, i);
+							slot++;
+						}
+					}
+					gameState.human_card = cards_left;
+
+					for(int i = 1 ; i < 7 ; i++) {
+						if(cards_left[i] != null) {
+							BasicCommands.drawCard(out, gameState.getHumanCard(i), i, 0);
+						}
+					}
 					return;
 				}
 			}
