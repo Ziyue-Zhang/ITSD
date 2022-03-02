@@ -429,6 +429,7 @@ public class TileClicked implements EventProcessor{
 							}
 						}else{
 							BasicCommands.playUnitAnimation(out, me, UnitAnimationType.idle);
+							BasicCommands.playUnitAnimation(out, enemy, UnitAnimationType.idle);
 						}
 	
 	
