@@ -52,12 +52,11 @@ public class TileClicked implements EventProcessor{
 				if(tilex==x&&tiley==y){
 					break;
 				}
-				if(Math.abs(tilex-x)<=1 && Math.abs(tiley-y)<=1){
+				int loc = gameState.getHighlightCard();
+				Card card = gameState.getHumanCard(loc);
+				if((Math.abs(tilex-x)<=1 && Math.abs(tiley-y)<=1) || card.getCardname().equals("Ironcliff Guardian")){
 					// play a card 
-					int loc = gameState.getHighlightCard();
 					BasicUtils.highlight_card_off(out, gameState);
-
-					Card card = gameState.getHumanCard(loc);
 					int m = gameState.humanPlayer.getMana() - card.getManacost();
 					
 
@@ -86,6 +85,20 @@ public class TileClicked implements EventProcessor{
 					gameState.humanPlayer.setMana(m);
 					BasicCommands.setPlayer1Mana(out, gameState.humanPlayer);
 					try {Thread.sleep(500);} catch (InterruptedException e) {e.printStackTrace();}
+
+					//Azure Herald
+					if(unit1.getId() == 2) {
+						for(Unit human_unit : gameState.human_unit) {
+							if(human_unit.getId() == 0) {
+								int health = human_unit.getHealth();
+								health = ((health + 3) > 20 ? 20 : health + 3);
+								human_unit.setHealth(health);
+								gameState.humanPlayer.setHealth(health);
+								BasicCommands.setPlayer1Health(out, gameState.humanPlayer);
+								BasicCommands.setUnitHealth(out, human_unit, health);
+							}
+						}
+					}
 
 					Card[] cards_left = new Card[7];
 					int slot = 1;

@@ -58,29 +58,32 @@ public class CardClicked implements EventProcessor{
 		gameState.setHighlightCard(handPosition, 1);
 		try {Thread.sleep(50);} catch (InterruptedException e) {e.printStackTrace();}
 		
-		for(Unit unit:gameState.human_unit){
-			Position position = unit.getPosition();
-			int x = position.getTilex();
-			int y = position.getTiley();
-			for(int i = 0; i < 8; i++){
-				int xx=x+dx[i];
-				int yy=y+dy[i];
-				if(xx<0||yy<0||xx>8||yy>4)
-					continue;
-				if(gameState.board[xx][yy]==0){
-					gameState.highlight_board[xx][yy]=1;
+		if (card.getCardname().equals("Ironcliff Guardian")) {
+			for(int i = 0; i < 9; i++){
+				for(int j = 0; j < 5; j++){
+					if(gameState.board[i][j] == 0) {
+						gameState.highlight_board[i][j] = 1;
+					}
+				}
+			}
+		} else {
+			for(Unit unit:gameState.human_unit){
+				Position position = unit.getPosition();
+				int x = position.getTilex();
+				int y = position.getTiley();
+				for(int i = 0; i < 8; i++){
+					int xx=x+dx[i];
+					int yy=y+dy[i];
+					if(xx<0||yy<0||xx>8||yy>4)
+						continue;
+					if(gameState.board[xx][yy]==0){
+						gameState.highlight_board[xx][yy]=1;
+					}
 				}
 			}
 		}
-
-		for(int i = 0; i < 9; i++){
-			for(int j = 0; j < 5; j++){
-				if(gameState.highlight_board[i][j]==1){
-					Tile tile = BasicObjectBuilders.loadTile(i, j);
-					BasicCommands.drawTile(out, tile, 1);
-				}
-			}
-		}
+		
+		BasicUtils.drawHighlightBord(out, gameState);
 		
 	}
 
