@@ -87,14 +87,14 @@ public class Initalize implements EventProcessor{
 		Player aiPlayer = gameState.getAiPlayer();
 
 		// setPlayer1Health
-		BasicCommands.addPlayer1Notification(out, "setPlayer1Health", 2);
+		BasicCommands.addPlayer1Notification(out, "setPlayer1Health", 1);
 		BasicCommands.setPlayer1Health(out, humanPlayer);
-		try {Thread.sleep(2000);} catch (InterruptedException e) {e.printStackTrace();}
+		try {Thread.sleep(1000);} catch (InterruptedException e) {e.printStackTrace();}
 
 		// setPlayer2Health
-		BasicCommands.addPlayer1Notification(out, "setPlayer2Health", 2);
+		BasicCommands.addPlayer1Notification(out, "setPlayer2Health", 1);
 		BasicCommands.setPlayer2Health(out, aiPlayer);
-		try {Thread.sleep(2000);} catch (InterruptedException e) {e.printStackTrace();}
+		try {Thread.sleep(1000);} catch (InterruptedException e) {e.printStackTrace();}
 
 		int m = gameState.turn_number+1;
 		
@@ -118,7 +118,7 @@ public class Initalize implements EventProcessor{
 			gameState.setHumanCard(i+1, card);
 			gameState.setHighlightCard(i+1, 0);
 			BasicCommands.drawCard(out, gameState.getHumanCard(i+1), i+1, 0);
-			try {Thread.sleep(500);} catch (InterruptedException e) {e.printStackTrace();}
+			try {Thread.sleep(200);} catch (InterruptedException e) {e.printStackTrace();}
 		}
 
 		// moveUnitToTile

@@ -154,97 +154,103 @@ public class TileClicked implements EventProcessor{
 				gameState.select_unit.round_attackable = false;
 				gameState.select_unit.round_moveable = false;
 
-				// 1. get the attacked enemy
-				Unit enemy = null;
-				for(Unit ai_unit : gameState.ai_unit) {
-					if(ai_unit.getPosition().getTilex() == tilex && ai_unit.getPosition().getTiley() == tiley)
-						enemy = ai_unit;
-				}
-				if(enemy == null) return;
+				int attack_num = gameState.select_unit.getId() == 3 ? 2 : 1;
 
-				Unit me = gameState.select_unit;
-
-				// 2. calculate whether enemy will die in this round
-				if(enemy.getHealth() > me.getAttack()) {
-					// enemy not die
-
-					// 3.1 show the attack
-					BasicCommands.playUnitAnimation(out, me, UnitAnimationType.attack);
-					BasicCommands.playUnitAnimation(out, enemy, UnitAnimationType.hit);
-					try {Thread.sleep(1000);} catch (InterruptedException e) {e.printStackTrace();}
-
-					// 3.2 decrease the health of enemy
-					enemy.setHealth(enemy.getHealth() - me.getAttack());
-					BasicCommands.setUnitHealth(out, enemy, enemy.getHealth());
-					if(enemy.getId() == gameState.ai_boss_id) {
-						gameState.getAiPlayer().setHealth(enemy.getHealth());
-						BasicCommands.setPlayer2Health(out, gameState.getAiPlayer());
+				for(int attack_round = 0 ; attack_round < attack_num ; attack_round++) {
+					// 1. get the attacked enemy
+					Unit enemy = null;
+					for(Unit ai_unit : gameState.ai_unit) {
+						if(ai_unit.getPosition().getTilex() == tilex && ai_unit.getPosition().getTiley() == tiley)
+							enemy = ai_unit;
 					}
-					try {Thread.sleep(20);} catch (InterruptedException e) {e.printStackTrace();}
-
-					// 3.3 the enemy fights back
-					BasicCommands.playUnitAnimation(out, enemy, UnitAnimationType.attack);
-					BasicCommands.playUnitAnimation(out, me, UnitAnimationType.hit);
-					try {Thread.sleep(1000);} catch (InterruptedException e) {e.printStackTrace();}
-					BasicCommands.playUnitAnimation(out, enemy, UnitAnimationType.idle);
-
-					if(me.getHealth() > enemy.getAttack()) {
-						// me not die
-						BasicCommands.playUnitAnimation(out, me, UnitAnimationType.idle);
-						try {Thread.sleep(20);} catch (InterruptedException e) {e.printStackTrace();}
-
-						// 4. decrease the health of me
-						me.setHealth(me.getHealth() - enemy.getAttack());
-						BasicCommands.setUnitHealth(out, me, me.getHealth());
-						if(me.getId() == gameState.human_boss_id) {
-							gameState.getHumanPlayer().setHealth(me.getHealth());
-							BasicCommands.setPlayer1Health(out, gameState.getHumanPlayer());
-						}
-						try {Thread.sleep(20);} catch (InterruptedException e) {e.printStackTrace();}
-					}else {
-						// me die
-						BasicCommands.playUnitAnimation(out, me, UnitAnimationType.death);
+					if(enemy == null) return;
+	
+					Unit me = gameState.select_unit;
+	
+					// 2. calculate whether enemy will die in this round
+					if(enemy.getHealth() > me.getAttack()) {
+						// enemy not die
+	
+						// 3.1 show the attack
+						BasicCommands.playUnitAnimation(out, me, UnitAnimationType.attack);
+						BasicCommands.playUnitAnimation(out, enemy, UnitAnimationType.hit);
 						try {Thread.sleep(1000);} catch (InterruptedException e) {e.printStackTrace();}
-
-						// 4.1 del me
-						BasicCommands.deleteUnit(out, me);
-						gameState.board[me.getPosition().getTilex()][me.getPosition().getTiley()] = 0;
-						gameState.human_unit.remove(me);
-
-						// 4.2 if me is boss , ai wins
-						if(me.getId() == gameState.human_boss_id) {
-							BasicCommands.addPlayer1Notification(out, "AI wins this game!", 2);
+	
+						// 3.2 decrease the health of enemy
+						enemy.setHealth(enemy.getHealth() - me.getAttack());
+						BasicCommands.setUnitHealth(out, enemy, enemy.getHealth());
+						if(enemy.getId() == gameState.ai_boss_id) {
+							gameState.getAiPlayer().setHealth(enemy.getHealth());
+							BasicCommands.setPlayer2Health(out, gameState.getAiPlayer());
+						}
+						try {Thread.sleep(20);} catch (InterruptedException e) {e.printStackTrace();}
+	
+						// 3.3 the enemy fights back
+						BasicCommands.playUnitAnimation(out, enemy, UnitAnimationType.attack);
+						BasicCommands.playUnitAnimation(out, me, UnitAnimationType.hit);
+						try {Thread.sleep(1000);} catch (InterruptedException e) {e.printStackTrace();}
+						BasicCommands.playUnitAnimation(out, enemy, UnitAnimationType.idle);
+	
+						if(me.getHealth() > enemy.getAttack()) {
+							// me not die
+							BasicCommands.playUnitAnimation(out, me, UnitAnimationType.idle);
+							try {Thread.sleep(20);} catch (InterruptedException e) {e.printStackTrace();}
+	
+							// 4. decrease the health of me
+							me.setHealth(me.getHealth() - enemy.getAttack());
+							BasicCommands.setUnitHealth(out, me, me.getHealth());
+							if(me.getId() == gameState.human_boss_id) {
+								gameState.getHumanPlayer().setHealth(me.getHealth());
+								BasicCommands.setPlayer1Health(out, gameState.getHumanPlayer());
+							}
+							try {Thread.sleep(20);} catch (InterruptedException e) {e.printStackTrace();}
+						}else {
+							// me die
+							BasicCommands.playUnitAnimation(out, me, UnitAnimationType.death);
+							try {Thread.sleep(1000);} catch (InterruptedException e) {e.printStackTrace();}
+	
+							// 4.1 del me
+							BasicCommands.deleteUnit(out, me);
+							gameState.board[me.getPosition().getTilex()][me.getPosition().getTiley()] = 0;
+							gameState.human_unit.remove(me);
+	
+							// 4.2 if me is boss , ai wins
+							if(me.getId() == gameState.human_boss_id) {
+								BasicCommands.addPlayer1Notification(out, "AI wins this game!", 2);
+								gameState.gameEnd = true;
+								gameState.aiWin = true;
+							}
+						}
+	
+	
+					}else {
+						// enemy die
+	
+						// 3.1 show the attack
+						BasicCommands.playUnitAnimation(out, me, UnitAnimationType.attack);
+						BasicCommands.playUnitAnimation(out, enemy, UnitAnimationType.hit);
+						try {Thread.sleep(1000);} catch (InterruptedException e) {e.printStackTrace();}
+						BasicCommands.playUnitAnimation(out, me, UnitAnimationType.idle);
+						BasicCommands.playUnitAnimation(out, enemy, UnitAnimationType.death);
+						try {Thread.sleep(1000);} catch (InterruptedException e) {e.printStackTrace();}
+	
+						// 3.2 del the enemy
+						BasicCommands.deleteUnit(out, enemy);
+						gameState.board[enemy.getPosition().getTilex()][enemy.getPosition().getTiley()] = 0;
+						gameState.ai_unit.remove(enemy);
+	
+						// 3.3 if the enemy is boos , human wins
+						if(enemy.getId() == gameState.ai_boss_id) {
+							gameState.getAiPlayer().setHealth(0);
+							BasicCommands.setPlayer2Health(out, gameState.getAiPlayer());
+							BasicCommands.addPlayer1Notification(out, "You win this game!", 2);
 							gameState.gameEnd = true;
-							gameState.aiWin = true;
+							gameState.humanWin = true;
 						}
 					}
-
-
-				}else {
-					// enemy die
-
-					// 3.1 show the attack
-					BasicCommands.playUnitAnimation(out, me, UnitAnimationType.attack);
-					BasicCommands.playUnitAnimation(out, enemy, UnitAnimationType.hit);
-					try {Thread.sleep(1000);} catch (InterruptedException e) {e.printStackTrace();}
-					BasicCommands.playUnitAnimation(out, me, UnitAnimationType.idle);
-					BasicCommands.playUnitAnimation(out, enemy, UnitAnimationType.death);
-					try {Thread.sleep(1000);} catch (InterruptedException e) {e.printStackTrace();}
-
-					// 3.2 del the enemy
-					BasicCommands.deleteUnit(out, enemy);
-					gameState.board[enemy.getPosition().getTilex()][enemy.getPosition().getTiley()] = 0;
-					gameState.ai_unit.remove(enemy);
-
-					// 3.3 if the enemy is boos , human wins
-					if(enemy.getId() == gameState.ai_boss_id) {
-						gameState.getAiPlayer().setHealth(0);
-						BasicCommands.setPlayer2Health(out, gameState.getAiPlayer());
-						BasicCommands.addPlayer1Notification(out, "You win this game!", 2);
-						gameState.gameEnd = true;
-						gameState.humanWin = true;
-					}
 				}
+
+
 			}
 
 			BasicUtils.highlight_unit_off(out, gameState);
