@@ -35,6 +35,9 @@ public class CardClicked implements EventProcessor{
 
 		BasicUtils.highlight_unit_off(out, gameState);
 
+		if(gameState.getHumanCard(handPosition)==null)
+			return;
+
 		if(gameState.highlight_card[handPosition] == 1){
 			// double click self
 

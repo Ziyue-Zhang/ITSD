@@ -41,6 +41,7 @@ public class GameState {
 	public int[] highlight_card = new int[7];
 
 	public int deck1_index = 0;
+	public int deck1_count = 0;
 
 	public int human_boss_id = 0;
 	public int ai_boss_id = 0;

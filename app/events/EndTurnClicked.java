@@ -41,18 +41,6 @@ public class EndTurnClicked implements EventProcessor{
 		aiPlayer.setMana(m);
 		BasicCommands.setPlayer2Mana(out, aiPlayer);
 		try {Thread.sleep(500);} catch (InterruptedException e) {e.printStackTrace();}
-		
-		int index = gameState.deck1_index;
-		Card card = BasicObjectBuilders.loadCard(gameState.deck1Cards[index], index, Card.class);
-		int free_index = gameState.getFreeCard();
-		if(free_index != 0){
-			gameState.setHumanCard(free_index, card);
-			gameState.setHighlightCard(free_index, 0);
-			BasicCommands.drawCard(out, gameState.getHumanCard(free_index), free_index, 0);
-			try {Thread.sleep(500);} catch (InterruptedException e) {e.printStackTrace();}
-			gameState.deck1_index += 1;
-			gameState.deck1_index = gameState.deck1_index % gameState.deck1Cards.length;
-		}
 
 		for(Unit ai_unit : gameState.ai_unit) {
 			ai_unit.round_attackable = true;
@@ -62,6 +50,22 @@ public class EndTurnClicked implements EventProcessor{
 		for(Unit human_unit : gameState.human_unit) {
 			human_unit.round_attackable = true;
 			human_unit.round_moveable = true;
+		}
+		
+		int index = gameState.deck1_index;
+		if(gameState.deck1_count == gameState.deck1Cards.length*2)
+			return;
+
+		Card card = BasicObjectBuilders.loadCard(gameState.deck1Cards[index], index, Card.class);
+		int free_index = gameState.getFreeCard();
+		if(free_index != 0){
+			gameState.setHumanCard(free_index, card);
+			gameState.setHighlightCard(free_index, 0);
+			BasicCommands.drawCard(out, gameState.getHumanCard(free_index), free_index, 0);
+			try {Thread.sleep(500);} catch (InterruptedException e) {e.printStackTrace();}
+			gameState.deck1_index += 1;
+			gameState.deck1_count += 1;
+			gameState.deck1_index = gameState.deck1_index % gameState.deck1Cards.length;
 		}
 		
 	}
